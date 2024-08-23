@@ -100,6 +100,13 @@ def add_expense():
             if not isinstance(data['items'], list) or not all(isinstance(item, dict) for item in data['items']):
                 return jsonify({"message": "Items must be a list of dictionaries"}), 400
             
+            # Check that each item in the items list contains both 'item' and 'cost' with valid values
+            for item in data['items']:
+                if not item.get('item') or not isinstance(item['item'], str):
+                    return jsonify({"message": "Each item must contain a valid 'item' name"}), 400
+                if 'cost' not in item or not isinstance(item['cost'], (int, float)) or item['cost'] <= 0:
+                    return jsonify({"message": "Each item must contain a valid 'cost' value"}), 400
+
             if not isinstance(data['consumedBy'], list) or not all(isinstance(id, str) for id in data['consumedBy']):
                 return jsonify({"message": "ConsumedBy must be a list of roommate IDs"}), 400
             
@@ -137,6 +144,7 @@ def add_expense():
         except Exception as e:
             print(f"Error: {e}")
             return jsonify({"message": "An error occurred while adding the expense"}), 500
+
 
 @app.route('/roommates', methods=['GET'])
 def get_roommates():
